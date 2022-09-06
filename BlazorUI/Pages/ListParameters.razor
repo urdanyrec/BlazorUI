@@ -1,0 +1,74 @@
+﻿@page "/listparam/{id}"
+
+@using System.Net.Http
+@inject HttpClient Http
+@using System.Net.Http.Json
+@using System.Threading.Tasks
+@using PhysicalObjectInfo.Domain
+
+<h3>Список параметров</h3>
+<p>Физический объект с Id: @Id</p>
+
+@if (fulfil && parameters == null)
+{
+    <p>Объекты отсутствуют.</p>
+}
+else if(!fulfil && parameters == null)
+{
+    <p>Идет загрузка...</p>
+}
+
+@if(parameters != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Время</th>
+                <th>Тип</th>
+                <th>Значение</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var par in parameters)
+            {
+                <tr>
+                    <td>@par.PollingTime.ToShortDateString()</td>
+                    <td>@par.PollingTime.ToLongTimeString()</td>
+                    <td>@par.Type</td>
+                    <td>@par.Value @par.Dimension</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <ul>
+        @foreach (var par in parameters)
+        {
+            <li>Тип: "@par.Type", @par.Value @par.Dimension</li>
+        }
+    </ul>
+}
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+    public List<Parameter> parameters;
+    private bool fulfil = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        parameters = await Http.GetFromJsonAsync<List<Parameter>>
+            ("https://localhost:7230/api/Parameter/" + Id);
+        parameters.OrderBy(x => x.Type);
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        parameters = await Http.GetFromJsonAsync<List<Parameter>>
+            ("https://localhost:7230/api/Parameter/" + Id);
+        parameters.OrderBy(x => x.Type);
+        fulfil = true;
+    }
+}

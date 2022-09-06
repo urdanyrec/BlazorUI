@@ -1,0 +1,109 @@
+﻿@page "/listobject"
+@inject NavigationManager navigationmanager
+@using System.Net.Http
+@inject HttpClient Http
+@using System.Net.Http.Json
+@using System.Threading.Tasks
+@using PhysicalObjectInfo.Domain
+
+<h3>Список физических объектов</h3>
+<p>@MessageAdd</p>
+
+@if (fulfil && objects == null)
+{
+    <p>Объекты отсутствуют.</p>
+}
+else if(!fulfil && objects == null)
+{
+    <p>Идет загрузка...</p>
+}
+
+@if(objects != null)
+{
+    <ul>
+        @foreach (var objectt in objects)
+        {
+            <li>URL: "@objectt.URL", Наименование: "@objectt.Series", Состояние: "@objectt.State"</li>
+        }
+    </ul>
+    <br />
+    <br />
+    <table class="table">
+        <thead>
+            <tr>
+                <th>URL</th>
+                <th>Series</th>
+                <th>State</th>
+                <th>Обновить</th>
+                <th>Удалить запись</th>
+                <th>Подключиться к объекту</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var obj in objects)
+            {
+                var id = obj.Id;
+                <tr>
+                    <td>@obj.URL</td>                 
+                    <td>@obj.Series</td>
+                    <td>@obj.State</td>
+                    <td><button class="btn btn-warning">Обновить</button></td>
+                    <td><button @onclick="(() => DeletePhysicalObject(id))" class="btn btn-danger">Удалить</button></td>
+                    <td><button @onclick="(() => ToPhysicalObjectParameters(id))" class="btn btn-success">Подключиться</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public string MessageAdd { get; set; }
+
+    private IEnumerable<PhysicalObject> objects;
+    private bool fulfil = false;
+
+    protected override async Task OnParametersSetAsync() =>
+        objects = await Http.GetFromJsonAsync<PhysicalObject[]>
+            ("https://localhost:7230/api/PhysicalObject");
+
+    protected override async Task OnInitializedAsync()
+    {
+        objects = await Http.GetFromJsonAsync<IEnumerable<PhysicalObject>>
+            ("https://localhost:7230/api/PhysicalObject");
+        fulfil = true;
+    }
+
+    public EventCallback<string> OnDeletePhysicalObject { get; set; }
+
+    private async Task DeletePhysicalObject(Guid id)
+    {
+        string uri = "https://localhost:7230/api/PhysicalObject/" + id.ToString();
+        await Http.DeleteAsync(uri); 
+        await OnDeletePhysicalObject.InvokeAsync("OK");
+        StateHasChanged();
+        Reload();
+        //NavigationManager.NavigateTo("/listobject");
+    }
+
+    private async Task ToPhysicalObjectParameters(Guid id)
+    {
+        string uri = id.ToString();//"https://localhost:7230/api/PhysicalObject/" + id.ToString();
+        //await Http.DeleteAsync(uri); 
+        //await OnDeletePhysicalObject.InvokeAsync("OK");
+        //StateHasChanged();
+        ToParameters(uri);
+        //NavigationManager.NavigateTo(uri);
+    }
+
+    void Reload()
+    {
+        navigationmanager.NavigateTo("/listobject", true);
+    }
+
+    void ToParameters(string uri)
+    {
+        string url = "/listparam/" + uri; 
+        navigationmanager.NavigateTo(url, true);
+    }
+}

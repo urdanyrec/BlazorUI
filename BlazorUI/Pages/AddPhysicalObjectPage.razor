@@ -1,0 +1,56 @@
+﻿@page "/addobject"
+@using System.Net.Http
+@inject HttpClient Http
+@using System.Net.Http.Json
+@using System.Threading.Tasks
+@using PhysicalObjectInfo.Domain
+<PageTitle>Add Physical Object</PageTitle>
+<h3>Добавление нового объекта</h3>
+<br/>
+<table>
+    <tbody>
+        <tr>
+            <td width="200px"><label class="form-label">Наименование объекта</label></td>                 
+            <td><input @bind="series"class="form-control" width="350px"/></td>
+        </tr>
+        <tr>
+            <td width="200px"><label class="form-label">Состояние объекта</label></td>                 
+            <td><input @bind="state"class="form-control" width="350px"/></td>
+        </tr>
+        <tr>
+            <td width="200px"><label class="form-label">Адрес сервера</label></td>                 
+            <td><input @bind="url" placeholder="http://..." class="form-control" width="350px"/></td>
+        </tr>
+        </tbody>
+    </table>
+<br />
+<button @onclick="AddPhysicalObject" class="btn btn-success">Добавить</button><br />
+
+@code {
+    private string series;
+    private string state;
+    private string url;
+    public string message = "";
+
+    [Parameter]
+    public EventCallback<string> OnAddPhysicalObject { get; set; }
+
+    private async Task AddPhysicalObject()
+    {
+        var physicalobject = new PhysicalObject { Id = System.Guid.NewGuid(), ObjectId = System.Guid.NewGuid(), Series = series, State = state, URL = url, ObjectTechId = System.Guid.Empty };
+        if ((series.Length == 0) || (state.Length == 0) || (url.Length == 0))
+        {
+            message = "Заполните все поля";
+        }
+        else
+        {
+            series = "";
+            state = "";
+            url = "";
+            message = "";
+            await Http.PostAsJsonAsync("https://localhost:7230/api/PhysicalObject", physicalobject);
+            await OnAddPhysicalObject.InvokeAsync("OK");
+        }
+    }
+
+}

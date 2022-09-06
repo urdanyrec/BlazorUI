@@ -1,0 +1,55 @@
+﻿@page "/fetchlist"
+@inject HttpClient Http
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Threading.Tasks
+
+<PageTitle>Weather forecast</PageTitle>
+
+
+@if (forecasts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Temp. (C)</th>
+                <th>Temp. (F)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in forecasts)
+            {
+                <tr>
+                    <td>@forecast.Type</td>
+                    <td>@forecast.Value</td>
+                    <td>@forecast.Dimension</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private WeatherForecast[] forecasts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        //Task.sleep(1000);
+        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("192.168.3.12:443/api");
+    }
+
+    public class WeatherForecast
+    {
+        public string Type { get; set; }
+
+        public string Dimension { get; set; }
+
+        public string Value { get; set; }
+
+    }
+}

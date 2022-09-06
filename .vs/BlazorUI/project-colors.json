@@ -1,0 +1,21 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "b1c00a4b-317f-4b30-8942-36b76cbba48e": {
+      "ProjectGuid": "b1c00a4b-317f-4b30-8942-36b76cbba48e",
+      "DisplayName": "BlazorUI",
+      "ColorIndex": 0
+    },
+    "db2a1864-4fa6-49f5-9f8c-23e6a97b34c1": {
+      "ProjectGuid": "db2a1864-4fa6-49f5-9f8c-23e6a97b34c1",
+      "DisplayName": "PhysicalObjectInfo.Domain",
+      "ColorIndex": 1
+    },
+    "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3": {
+      "ProjectGuid": "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3",
+      "DisplayName": "Прочие файлы",
+      "ColorIndex": -1
+    }
+  },
+  "NextColorIndex": 2
+}
